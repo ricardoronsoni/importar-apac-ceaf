@@ -1,0 +1,39 @@
+version: '3.4'
+
+services:
+  app:
+    container_name: app-analise-dados
+    build: .
+    depends_on:
+      - postgres
+    restart: unless-stopped
+    volumes:
+      - .:/go/src
+    networks:
+      - backend
+
+  postgres:
+    image: postgres:15.2-alpine
+    container_name: postgres-analise-dados
+    tty: true
+    environment:
+      POSTGRES_BD: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_TAGS: dev
+      POSTGRES_NAME: pgsql
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres:/var/lib/postgresql/data
+      - ./pkg/database/init-database.sh:/docker-entrypoint-initdb.d/init-database.sh
+    networks:
+      - backend
+
+volumes:
+  postgres:
+
+networks:
+  backend :
+    driver: bridge

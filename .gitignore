@@ -1,0 +1,6 @@
+*.log
+*.dbc
+*.dbf
+*.csv
+*.txt
+.env
