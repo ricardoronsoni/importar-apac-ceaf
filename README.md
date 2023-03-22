@@ -106,6 +106,8 @@ Ao realizar o download de um arquivo do tipo 'PA', deverá ser contado a quantid
 Durante o processo de importação o sistema deverá contar a quantidade de registros do CEAF que foram identificados no arquivo 'PA'. Após a finalização da importação, o programa deverá contar a quantidade de registros do CEAF inseridos no banco de dados para o respectivo arquivo 'PA'. Caso as contagens não batam o processo de importação do arquivo será suspenso e todos os registros no banco de dados para o respectivo arquivo serão excluídos.
 ## RN021 - Data atualização
 Todo registro no banco deverá possuir preenchido a data da sua última atualização.
+## RN022 - Dados inconsistentes
+Os dados que forem recebidos fora do padrão ou em branco deverão ser gravados no banco de dados como Null. Nesse caso o registro deverá ser persistido no banco.
 
 # Benchmark
 Abaixo é disponibilizado o tempo de execução do programa para realizar as importações. Teste realizado com Mackbook Air M1, 16Gb ram, 256Gb SSD.
