@@ -230,7 +230,6 @@ func tratarDadosPa(registroApac []string, nomeArquivo string) (database.DadosApa
 		return database.DadosApac{}, err
 	}
 	if dados.MunicipioDispensacao, err = strconv.Atoi(registroApac[3]); err != nil {
-		utils.Logger(err, "error")
 		dados.MunicipioDispensacao = -1
 	}
 	dados.CnesDispensacao = registroApac[0]
@@ -238,11 +237,9 @@ func tratarDadosPa(registroApac []string, nomeArquivo string) (database.DadosApa
 	dados.Procedimento = registroApac[15]
 	dados.Cid = registroApac[29]
 	if dados.QtdApresentada, err = strconv.Atoi(registroApac[40]); err != nil {
-		utils.Logger(err, "error")
 		dados.QtdApresentada = -1
 	}
 	if dados.ValorApresentado, err = strconv.ParseFloat(registroApac[42], 64); err != nil {
-		utils.Logger(err, "error")
 		dados.ValorApresentado = -1.0
 	}
 	if dados.QtdAprovada, err = strconv.Atoi(registroApac[41]); err != nil {
@@ -257,7 +254,6 @@ func tratarDadosPa(registroApac []string, nomeArquivo string) (database.DadosApa
 		dados.IdadePaciente = -1
 	} else {
 		if dados.IdadePaciente, err = strconv.Atoi(registroApac[33]); err != nil {
-			utils.Logger(err, "error")
 			dados.IdadePaciente = -1
 		}
 	}
@@ -268,7 +264,6 @@ func tratarDadosPa(registroApac []string, nomeArquivo string) (database.DadosApa
 		dados.MunicipioResidenciaPaciente = -1
 	} else {
 		if dados.MunicipioResidenciaPaciente, err = strconv.Atoi(registroApac[39]); err != nil {
-			utils.Logger(err, "error")
 			dados.MunicipioResidenciaPaciente = -1
 		}
 	}
@@ -290,7 +285,6 @@ func tratarDadosAm(registroApac []string) (database.DadosApac, error) {
 		dados.PesoPaciente = -1
 	} else {
 		if dados.PesoPaciente, err = strconv.Atoi(registroApac[45]); err != nil {
-			utils.Logger(err, "error")
 			dados.PesoPaciente = -1
 		}
 	}
@@ -298,7 +292,6 @@ func tratarDadosAm(registroApac []string) (database.DadosApac, error) {
 		dados.AlturaPaciente = -1
 	} else {
 		if dados.AlturaPaciente, err = strconv.Atoi(registroApac[46]); err != nil {
-			utils.Logger(err, "error")
 			dados.AlturaPaciente = -1
 		}
 	}
@@ -308,7 +301,6 @@ func tratarDadosAm(registroApac []string) (database.DadosApac, error) {
 		dados.DataSolicitacao = time.Time{}
 	} else {
 		if dados.DataSolicitacao, err = time.Parse("20060102", registroApac[39]); err != nil {
-			utils.Logger(err, "error")
 			dados.DataSolicitacao = time.Time{}
 		}
 	}
@@ -316,7 +308,6 @@ func tratarDadosAm(registroApac []string) (database.DadosApac, error) {
 		dados.DataAutorizacao = time.Time{}
 	} else {
 		if dados.DataAutorizacao, err = time.Parse("20060102", registroApac[40]); err != nil {
-			utils.Logger(err, "error")
 			dados.DataAutorizacao = time.Time{}
 		}
 	}

@@ -1,6 +1,15 @@
 # Dados APAC CEAF
 Sistema para coletar os dados de APAC dos medicamentos do Componente Especializado da Assistência Farmacêutica (CEAF) disseminados pelo Datasus. Por meio de rotina automatizada os dados são coletados, tratados, validados e persistidos em banco de dados.
 
+# Principais funcionalidades
+- Importa os dados de APAC dos medicamentos do CEAF.  
+- Salva os dados em banco de dados.  
+- Multiplataforma (Windows, MacOS e Linux).  
+- Ambiente conteinerizado funcional apenas com a instalação do software Docker.  
+- Mantém o banco de dados sempre atualizado com base em uma rotina automática e configurável de atualização dos registros.  
+- Envio de emails sempre que a rotina de atualização for iniciada e finalizada com o resultado da rotina.  
+- Vários fluxos para manter a integridade do banco de dados e evitar a ocorrência de falta de registros ou duplicidade.  
+
 # Tecnologias utilizadas
 - Linguagem de programação: Golang 1.20.2.
 - Banco de dados: Postgres 15.2.
@@ -107,9 +116,17 @@ Durante o processo de importação o sistema deverá contar a quantidade de regi
 ## RN021 - Data atualização
 Todo registro no banco deverá possuir preenchido a data da sua última atualização.
 ## RN022 - Dados inconsistentes
-Os dados que forem recebidos fora do padrão ou em branco deverão ser gravados no banco de dados como Null. Nesse caso o registro deverá ser persistido no banco.
+Os dados que forem recebidos fora do padrão ou em branco deverão ser gravados no banco de dados como Null. Nesse caso o registro deverá ser persistido no banco, exceto se o problema ocorrer em um campos listados abaixo, onde todos os registros do arquivo DBC serão rejeitados:
+    - Competência da dispensação;
+    - Competência do processamento;
+    - Código UF dispensação;
+    - Quantidade aprovada;
+    - Valor aprovado.
 
 # Benchmark
 Abaixo é disponibilizado o tempo de execução do programa para realizar as importações. Teste realizado com Mackbook Air M1, 16Gb ram, 256Gb SSD.
 - Tempo para importar o ano de 2021 completo: 13h13m16s726.
 - Tempo para importar individualmente as competências de 2021: Avg: 01h06m06s393, Min: 00h52m29s185, Max: 01h26m09s654.
+
+# Contato
+## ricardoronsoni@gmail.com

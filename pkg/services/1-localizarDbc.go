@@ -47,12 +47,20 @@ func IniciarMonitor() {
 	emailArquivosLocalizados(arquivosSelecionados)
 	iniciarProcessamento()
 
+	if len(arquivosSelecionados) > 0 {
+		if err := validacaoTotalFinal(); err != nil {
+			return
+		}
+	}
+
 	if err := clientFtp.Quit(); err != nil {
 		utils.Logger(err, "error")
 	}
+
+	utils.Logger("Aguardando próximo agendamento.", "info")
 }
 
-// localizarInconsistenciasBanco ira localizar no banco de dados arquivos que comecaram a ser importados e nao foram finalizados. Os dados desses arquivos serão exlcuidos do banco de dados.
+// localizarInconsistenciasBanco ira localizar no banco de dados arquivos que comecaram a ser importados e nao foram finalizados, pois estao sem data fim no arquivo de auditoria. Os dados desses arquivos serão exlcuidos do banco de dados.
 func localizarInconsistenciasBanco() error {
 	utils.Logger("Verificando a consistencia do banco de dados.", "info")
 
@@ -63,9 +71,9 @@ func localizarInconsistenciasBanco() error {
 	}
 
 	if len(arquivosErro) == 0 {
-		utils.Logger("Nao foram encontradas inconsistencias do banco de dados.", "info")
+		utils.Logger("Nao foram encontradas inconsistencias no banco de dados.", "info")
 	} else {
-		utils.Logger("Foi(ram) encontrado(s) "+fmt.Sprint(len(arquivosErro))+" arquivo(s) com inconsistencias do banco de dados.", "info")
+		utils.Logger("Foi(ram) encontrado(s) "+fmt.Sprint(len(arquivosErro))+" arquivo(s) com inconsistencias no banco de dados.", "info")
 
 		for _, arquivo := range arquivosErro {
 			purgeInsertDbc(arquivo)
@@ -147,11 +155,31 @@ func iniciarProcessamento() {
 		//DeletarArquivosTemporarios()
 		emailTerminoImportacao(arquivosSelecionados)
 		utils.Logger("Processo de importação dos "+fmt.Sprint(len(arquivosSelecionados))+" arquivos finalizado. Arquivos persistidos: "+fmt.Sprint(qtdArquivoPersistido)+". Erros: "+fmt.Sprint(utils.ContErro)+".", "info")
-		utils.Logger("Aguardando próximo agendamento.", "info")
 
 	} else {
 		utils.Logger("Não foram localizados arquivos para importação.", "info")
-		utils.Logger("Aguardando próximo agendamento.", "info")
 		emailSemArquivoNovo()
 	}
+}
+
+// validacaoTotalFinal ira bater para cada arquivo na tabela se auditoria se a qtd de registros na tabela de medicamento bate. Se nao bater, ira ocorrer a exclusao dos dados
+func validacaoTotalFinal() error {
+	utils.Logger("Iniciando validação completa e final do banco de dados.", "info")
+
+	arquivosErro, err := data.ValidacaoTotalFinal()
+	if err != nil {
+		return err
+	}
+
+	if len(arquivosErro) == 0 {
+		utils.Logger("Banco de dados integro.", "info")
+	} else {
+		utils.Logger("Foi(ram) encontrado(s) "+fmt.Sprint(len(arquivosErro))+" arquivo(s) com inconsistencias no banco de dados.", "info")
+
+		for _, arquivo := range arquivosErro {
+			purgeInsertDbc(arquivo.Arquivo)
+		}
+	}
+
+	return nil
 }

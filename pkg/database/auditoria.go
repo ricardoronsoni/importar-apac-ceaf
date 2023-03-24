@@ -7,6 +7,13 @@ import (
 
 var arquivoPersistido bool
 
+// ValidacaoFinalBanco é utilizada para representar a validacao final de consistencia do banco de dados
+type ValidacaoFinalBanco struct {
+	Arquivo       string
+	RegistroBanco string
+	CountRegistro string
+}
+
 // ConsultarArquivo verifica se um arquivo localizado no FTP ja foi persistido anteriormente
 func (db Database) ConsultarArquivo(nomeArquivo string) bool {
 	if err := db.SqlDb.PingContext(dbContext); err != nil {
@@ -129,4 +136,43 @@ func (db Database) InconsistenciaAuditoria() ([]string, error) {
 	}
 
 	return arquivos, nil
+}
+
+// InconsistenciaAuditoria verifica se existe algum arquivo que nao terminou o processamento
+func (db Database) ValidacaoTotalFinal() ([]ValidacaoFinalBanco, error) {
+	if err := db.SqlDb.PingContext(dbContext); err != nil {
+		utils.Logger(err, "error")
+		return []ValidacaoFinalBanco{}, err
+	}
+
+	sqlStatement := `select 
+						a.arquivo,
+						a.registros_banco,
+						count(m.arquivo_origem)
+					from apac.auditoria a 
+					left join apac.medicamento m on a.arquivo = m.arquivo_origem 
+					group by 
+						a.arquivo,
+						a.registros_banco
+					having 	a.registros_banco != count(m.arquivo_origem)`
+
+	rows, err := db.SqlDb.QueryContext(dbContext, sqlStatement)
+	if err != nil {
+		utils.Logger(err, "error")
+		return []ValidacaoFinalBanco{}, err
+	}
+
+	defer func() { _ = rows.Close() }()
+
+	arquivosInconsistente := []ValidacaoFinalBanco{}
+	for rows.Next() {
+		arquivoInconsistente := ValidacaoFinalBanco{}
+		err := rows.Scan(&arquivoInconsistente.Arquivo, &arquivoInconsistente.RegistroBanco, &arquivoInconsistente.CountRegistro)
+		if err != nil {
+			utils.Logger(err, "error")
+		}
+		arquivosInconsistente = append(arquivosInconsistente, arquivoInconsistente)
+	}
+
+	return arquivosInconsistente, nil
 }
