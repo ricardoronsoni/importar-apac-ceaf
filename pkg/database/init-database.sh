@@ -38,12 +38,8 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
         arquivo_origem char(12),
         data_alteracao timestamp default (now() at time zone 'America/Sao_Paulo') not null
     );
-    #create index index_competencia_dispensacao ON apac.medicamento (competencia_dispensacao);
-    #create index index_codigo_uf_dispensacao ON apac.medicamento (codigo_uf_dispensacao);
-    #create index index_procedimento ON apac.medicamento (procedimento);
-    #create index index_cid ON apac.medicamento (cid);
+
     create index index_arquivo_origem ON apac.medicamento (arquivo_origem);
-    #create unique index index_unique_apac_competencia_procedimento ON apac.medicamento (apac, competencia_dispensacao, procedimento);
     comment on table apac.medicamento is 'Tabela como os dados de APAC de medicamentos.';
     comment on column apac.medicamento.competencia_dispensacao is 'Referente ao campo AP_CMP. Compentencia arredondada para o primeiro dia do mes em que ocorreu a dispensacao.';
     comment on column apac.medicamento.competencia_processamento is 'Referente ao campo AP_MVM. Compentencia arredondada para o primeiro dia do mes em que ocorreu a importacao do arquivo pela SES para o SIA/SUS.';

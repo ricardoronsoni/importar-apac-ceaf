@@ -24,6 +24,11 @@ Acessar a pasta raiz do projeto que contêm o arquivo `dockerfile-compose.yml` e
 docker-compose up
 ```
 A partir disso será possível acompanhar no terminal todas as ações que estão sendo realizadas pelo programa. 
+Se ocorrer algum problema de permissão de diretório e o banco de dados não for criado no Docker, será necessário acessar o container do postgres da seguinte forma.  
+```
+docker exec -it postgres-analise-dados psql -U <usuario_do_banco_especificado_no_.env>
+```
+Após isso é só inserir manualmente as instruções SQL disponíveis em `./pkg/database/init-database.sh`.  
 Caso seja necessário alterar algum parâmetro de configuração do sistema, o container deverá ser stopado e o código abaixo deverá ser executado para que as novas definições sejam aplicadas.
 ```
 docker-compose up --build

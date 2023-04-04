@@ -15,8 +15,8 @@ var (
 	timeoutSegundos    = 60
 
 	//Range de data em que serao baixados os arquivos
-	DataInicial = 1901 //formato AAMM
-	DataFinal   = 2112 //formato AAMM
+	DataInicial = 2201 //formato AAMM
+	DataFinal   = 2212 //formato AAMM
 
 	//DbConnection
 	DbHost     = "postgres-analise-dados"
@@ -33,7 +33,7 @@ var (
 	SubjectEmailNotFound   = "Monitor APAC não localizou novos arquivos"
 	SubjectEmailFoundFiles = "Monitor APAC localizou novos arquivos"
 	SubjectFinishImport    = "Monitor APC finalizou a importação dos arquivos"
-	DestinedEmail          = []string{"teste123@gmail.com"}
+	DestinedEmail          = []string{"ricardoronsoni@gmail.com"}
 )
 
 // CarregarEnv carrega as variaveis de ambiente do arquivo .env
