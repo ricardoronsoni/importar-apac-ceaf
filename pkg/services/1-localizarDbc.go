@@ -44,13 +44,16 @@ func IniciarMonitor() {
 	}
 
 	arquivosSelecionados = selecionarArquivosFtp(todosArquivos)
-	emailArquivosLocalizados(arquivosSelecionados)
-	iniciarProcessamento()
 
 	if len(arquivosSelecionados) > 0 {
+		emailArquivosLocalizados(arquivosSelecionados)
+		iniciarProcessamento()
 		if err := validacaoTotalFinal(); err != nil {
 			return
 		}
+	} else {
+		utils.Logger("Não foram localizados arquivos para importação.", "info")
+		emailSemArquivoNovo()
 	}
 
 	if err := clientFtp.Quit(); err != nil {
@@ -145,21 +148,16 @@ func selecionarArquivosFtp(todosArquivos []*ftp.Entry) []string {
 
 // iniciarProcessamento pega a relacao dos arquivos localizados para importacao e inicia o processo de importacao de cada um individualmente
 func iniciarProcessamento() {
-	if len(arquivosSelecionados) > 0 {
-		utils.Logger("Iniciando o processo de importação dos "+fmt.Sprint(len(arquivosSelecionados))+" arquivos.", "info")
+	utils.Logger("Iniciando o processo de importação dos "+fmt.Sprint(len(arquivosSelecionados))+" arquivos.", "info")
 
-		for _, nomeArquivoDbc := range arquivosSelecionados {
-			importarArquivo(nomeArquivoDbc)
-		}
-
-		//DeletarArquivosTemporarios()
-		emailTerminoImportacao(arquivosSelecionados)
-		utils.Logger("Processo de importação dos "+fmt.Sprint(len(arquivosSelecionados))+" arquivos finalizado. Arquivos persistidos: "+fmt.Sprint(qtdArquivoPersistido)+". Erros: "+fmt.Sprint(utils.ContErro)+".", "info")
-
-	} else {
-		utils.Logger("Não foram localizados arquivos para importação.", "info")
-		emailSemArquivoNovo()
+	for _, nomeArquivoDbc := range arquivosSelecionados {
+		importarArquivo(nomeArquivoDbc)
 	}
+
+	//DeletarArquivosTemporarios()
+	emailTerminoImportacao(arquivosSelecionados)
+	utils.Logger("Processo de importação dos "+fmt.Sprint(len(arquivosSelecionados))+" arquivos finalizado. Arquivos persistidos: "+fmt.Sprint(qtdArquivoPersistido)+". Erros: "+fmt.Sprint(utils.ContErro)+".", "info")
+
 }
 
 // validacaoTotalFinal ira bater para cada arquivo na tabela se auditoria se a qtd de registros na tabela de medicamento bate. Se nao bater, ira ocorrer a exclusao dos dados

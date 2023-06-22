@@ -54,7 +54,7 @@ Schema com os dados das APAC: `apac`.
 Schema com tabela de UF e município: `geral`. 
 
 ## DBC para DBF
-Foi utilizada a biblioteca https://github.com/eaglebh/blast-dbf.git para realizar a transformação dos arquivos DBC para DBC. O fluxo para utilizar a biblioteca manualmente é:
+Foi utilizada a biblioteca https://github.com/eaglebh/blast-dbf.git para realizar a transformação dos arquivos DBC para DBF. O fluxo para utilizar a biblioteca manualmente é:
 ```
 git clone https://github.com/eaglebh/blast-dbf.git
 cd blast-dbf
@@ -129,7 +129,7 @@ Os dados que forem recebidos fora do padrão ou em branco deverão ser gravados 
     - Valor aprovado.
 
 # Benchmark
-Abaixo é disponibilizado o tempo de execução do programa para realizar as importações. Teste realizado com Mackbook Air M1, 16Gb ram, 256Gb SSD.
+Abaixo é disponibilizado o tempo de execução do programa para realizar as importações. Teste realizado com Mackbook Air M1, 16Gb ram, 256Gb SSD e conexão de internet de 100 Mb.
 - Tempo para importar o ano de 2021 completo: 13h13m16s726.
 - Tempo para importar individualmente as competências de 2021: Avg: 01h06m06s393, Min: 00h52m29s185, Max: 01h26m09s654.
 

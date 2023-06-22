@@ -15,8 +15,8 @@ var (
 	timeoutSegundos    = 60
 
 	//Range de data em que serao baixados os arquivos
-	DataInicial = 2201 //formato AAMM
-	DataFinal   = 2212 //formato AAMM
+	DataInicial = 1801 //formato AAMM
+	DataFinal   = 3012 //formato AAMM
 
 	//DbConnection
 	DbHost     = "postgres-analise-dados"
