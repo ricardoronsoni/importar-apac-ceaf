@@ -8,6 +8,7 @@ import (
 	"io"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/lib/pq"
@@ -304,4 +305,132 @@ func (db Database) ExcluirMedicamento(nomeArquivo string) error {
 	}
 
 	return nil
+}
+
+// ComeptenciasInseridas verifica as competencias de dispensacao que foram inseridas na rotina
+func (db Database) ComeptenciasInseridas(dataIncioRotina time.Time) ([]string, error) {
+	err := db.SqlDb.PingContext(dbContext)
+	if err != nil {
+		utils.Logger(err, "error")
+		return nil, err
+	}
+
+	sqlStatement := "select distinct to_char(competencia_dispensacao, 'YYYY-MM-DD') from apac.medicamento where data_alteracao >= $1;"
+
+	rows, err := db.SqlDb.QueryContext(dbContext, sqlStatement, dataIncioRotina)
+	if err != nil {
+		utils.Logger(err, "error")
+		return nil, err
+	}
+
+	defer func() { _ = rows.Close() }()
+
+	var competencias []string
+
+	for rows.Next() {
+		var result string
+		err := rows.Scan(&result)
+		if err != nil {
+			utils.Logger(err, "error")
+			return nil, err
+		}
+		competencias = append(competencias, result)
+	}
+
+	if err := rows.Err(); err != nil {
+		utils.Logger(err, "error")
+		return nil, err
+	}
+
+	return competencias, nil
+}
+
+// ExcluirAuditoria ira excluir todos os registros da tabela de medicamento
+func (db Database) ExtracaoLooker(competenciasInseridas []string) (*sql.Rows, error) {
+	if err := db.SqlDb.PingContext(dbContext); err != nil {
+		utils.Logger(err, "error")
+		return nil, err
+	}
+
+	placeholders := make([]string, len(competenciasInseridas))
+	for i := range competenciasInseridas {
+		placeholders[i] = fmt.Sprintf("$%d", i+1)
+	}
+	inClause := strings.Join(placeholders, ", ")
+
+	queryStatement := fmt.Sprintf(`
+		select 
+			to_char(competencia_dispensacao, 'YYYY-MM-DD'),
+			sigla_uf_dispensacao,
+			u.regiao_uf,
+			procedimento,
+			s.descricao_procedimento,
+			cid,
+			case
+				when idade_paciente = 0 then '0 ano: Menores de 1 ano' 
+				when idade_paciente between 1 and 4 then '1-4 anos: Pré-escolares' 
+				when idade_paciente between 5 and 14 then '5-14 anos: Crianças em idade escolar' 
+				when idade_paciente between 15 and 24 then '15-24 anos: Adolescentes e jovens adultos' 
+				when idade_paciente between 25 and 64 then '25-64 anos: Adultos em idade produtiva' 
+				when idade_paciente >= 65 then '65+ anos: Idosos'
+			end faixa_etaria_paciente,
+			case 
+				when sexo_paciente = 'F' then 'Feminino'
+				when sexo_paciente = 'M' then 'Masculino'
+			end sexo_paciente,
+			case 
+				when raca_cor_paciente = '01' then 'Branca' 
+				when raca_cor_paciente = '02' then 'Preta' 
+				when raca_cor_paciente = '03' then 'Parda' 
+				when raca_cor_paciente = '04' then 'Amarela' 
+				when raca_cor_paciente = '05' then 'Indígena' 
+				when raca_cor_paciente = '99' then 'Sem informação' 
+			end	raca_cor_paciente,
+			sum(quantidade_aprovada) quantidade_aprovada,
+			sum(valor_aprovado) valor_aprovado,
+			count(distinct cns_paciente) total_pacientes
+		from apac.medicamento m 
+		left join geral.sigtap s on m.procedimento = s.numero_procedimento 
+		left join geral.uf u on m.sigla_uf_dispensacao = u.sigla_uf 
+		where quantidade_apresentada > 0 and m.competencia_dispensacao in (%s) 
+		group by 
+			to_char(competencia_dispensacao, 'YYYY-MM-DD'),
+			sigla_uf_dispensacao,
+			u.regiao_uf,
+			procedimento,
+			s.descricao_procedimento,
+			cid,
+			case
+				when idade_paciente = 0 then '0 ano: Menores de 1 ano' 
+				when idade_paciente between 1 and 4 then '1-4 anos: Pré-escolares' 
+				when idade_paciente between 5 and 14 then '5-14 anos: Crianças em idade escolar' 
+				when idade_paciente between 15 and 24 then '15-24 anos: Adolescentes e jovens adultos' 
+				when idade_paciente between 25 and 64 then '25-64 anos: Adultos em idade produtiva' 
+				when idade_paciente >= 65 then '65+ anos: Idosos'
+			end,
+			case 
+				when sexo_paciente = 'F' then 'Feminino'
+				when sexo_paciente = 'M' then 'Masculino'
+			end,
+			case 
+				when raca_cor_paciente = '01' then 'Branca' 
+				when raca_cor_paciente = '02' then 'Preta' 
+				when raca_cor_paciente = '03' then 'Parda' 
+				when raca_cor_paciente = '04' then 'Amarela' 
+				when raca_cor_paciente = '05' then 'Indígena' 
+				when raca_cor_paciente = '99' then 'Sem informação' 
+			end`, inClause)
+
+	args := make([]interface{}, len(competenciasInseridas))
+	for i, v := range competenciasInseridas {
+		args[i] = v
+	}
+
+	rows, err := db.SqlDb.QueryContext(dbContext, queryStatement, args...)
+	if err != nil {
+		utils.Logger(err, "error")
+		return nil, err
+	}
+
+	return rows, nil
 }

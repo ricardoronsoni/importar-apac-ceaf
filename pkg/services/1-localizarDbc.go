@@ -51,6 +51,10 @@ func IniciarMonitor() {
 		if err := validacaoTotalFinal(); err != nil {
 			return
 		}
+		if utils.EnviarAtualizacaoLooker {
+			envioLooker()
+		}
+
 	} else {
 		utils.Logger("Não foram localizados arquivos para importação.", "info")
 		emailSemArquivoNovo()

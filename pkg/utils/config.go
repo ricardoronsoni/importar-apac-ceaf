@@ -18,12 +18,19 @@ var (
 	DataInicial = 1801 //formato AAMM
 	DataFinal   = 3012 //formato AAMM
 
+	//Alimentar o dashboard do looker studio
+	EnviarAtualizacaoLooker = false
+	UrlCloudLooker          = "url_nuvem"
+
 	//DbConnection
 	DbHost     = "postgres-analise-dados"
 	DbPort     = "5432"
 	DbName     string
 	DbUser     string
 	DbPassword string
+
+	//Autenticação Cloud
+	ApiKeyCloud string
 
 	//Email
 	UserEmail              string
@@ -47,4 +54,5 @@ func CarregarEnv() {
 	DbPassword = os.Getenv("DB_PASSWORD")
 	UserEmail = os.Getenv("EMAIL_USER")
 	PasswordEmail = os.Getenv("EMAIL_PASSWORD")
+	ApiKeyCloud = os.Getenv("API_KEY_CLOUD")
 }
