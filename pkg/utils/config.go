@@ -19,8 +19,8 @@ var (
 	DataFinal   = 3012 //formato AAMM
 
 	//Alimentar o dashboard do looker studio
-	EnviarAtualizacaoLooker = false
-	UrlCloudLooker          = "url_nuvem"
+	EnviarAtualizacaoLooker = true
+	UrlCloudLooker          = "http://144.22.254.60:8000/insert_data"
 
 	//DbConnection
 	DbHost     = "postgres-analise-dados"
